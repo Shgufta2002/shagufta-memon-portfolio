@@ -87,6 +87,125 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('load', function() {
         document.body.classList.add('loaded');
     });
+
+    // Parallax effect for hero section
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const parallax = document.querySelector('.hero');
+        if (parallax) {
+            const speed = scrolled * 0.5;
+            parallax.style.transform = `translateY(${speed}px)`;
+        }
+    });
+
+    // Typing effect for hero subtitle
+    const subtitle = document.querySelector('.hero-subtitle');
+    if (subtitle) {
+        const text = subtitle.textContent;
+        subtitle.textContent = '';
+        subtitle.style.borderRight = '2px solid white';
+        
+        let i = 0;
+        const typeWriter = () => {
+            if (i < text.length) {
+                subtitle.textContent += text.charAt(i);
+                i++;
+                setTimeout(typeWriter, 100);
+            } else {
+                setTimeout(() => {
+                    subtitle.style.borderRight = 'none';
+                }, 1000);
+            }
+        };
+        
+        setTimeout(typeWriter, 1000);
+    }
+
+    // Interactive stats counter animation
+    const statNumbers = document.querySelectorAll('.stat-number');
+    const animateStats = () => {
+        statNumbers.forEach(stat => {
+            const target = parseInt(stat.textContent);
+            const increment = target / 50;
+            let current = 0;
+            
+            const updateCounter = () => {
+                if (current < target) {
+                    current += increment;
+                    stat.textContent = Math.ceil(current) + (stat.textContent.includes('%') ? '%' : stat.textContent.includes('+') ? '+' : '');
+                    requestAnimationFrame(updateCounter);
+                } else {
+                    stat.textContent = stat.getAttribute('data-original') || stat.textContent;
+                }
+            };
+            
+            // Store original text
+            if (!stat.getAttribute('data-original')) {
+                stat.setAttribute('data-original', stat.textContent);
+            }
+            
+            updateCounter();
+        });
+    };
+
+    // Trigger stats animation when hero section is visible
+    const heroObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                setTimeout(animateStats, 1500);
+                heroObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    const heroSection = document.querySelector('.hero');
+    if (heroSection) {
+        heroObserver.observe(heroSection);
+    }
+
+    // Magnetic effect for buttons
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach(button => {
+        button.addEventListener('mousemove', function(e) {
+            const rect = button.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const deltaX = (x - centerX) / centerX;
+            const deltaY = (y - centerY) / centerY;
+            
+            button.style.transform = `translate(${deltaX * 5}px, ${deltaY * 5}px) translateY(-3px)`;
+        });
+        
+        button.addEventListener('mouseleave', function() {
+            button.style.transform = '';
+        });
+    });
+
+    // Profile photo hover effect with 3D tilt
+    const profilePhoto = document.querySelector('.profile-avatar');
+    if (profilePhoto) {
+        profilePhoto.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 5;
+            const rotateY = (centerX - x) / 5;
+            
+            this.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.1)`;
+        });
+        
+        profilePhoto.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
+    }
 });
 
 // Add CSS for animations
@@ -144,7 +263,7 @@ style.textContent = `
     }
     
     body {
-        opacity: 0;
+        opacity: 1;
         transition: opacity 0.5s ease;
     }
     
